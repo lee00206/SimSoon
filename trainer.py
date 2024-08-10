@@ -24,7 +24,7 @@ class Trainer(nn.Module):
         # load dataset
         if args.task == 'pretraining':
             path = 'data/embedding/pubchem_part.pth'
-        elif args.task == 'downstream':
+        elif args.task == 'downstream' or 'inference':
             path = f'data/prediction/{data}.pth'
 
         smiles, second = torch.load(path)
