@@ -5,7 +5,7 @@ def get_Config():
     parser = argparse.ArgumentParser()
 
     # training setting
-    parser.add_argument('--task', type=str, default='embedding', help='embedding / downstream')
+    parser.add_argument('--task', type=str, default='pretraining', help='pretraining / downstream')
     parser.add_argument('--data', type=str, default='pubchem_part')
     parser.add_argument('--pre_exp_num', type=int, default=None, help='Experiment number to load pretrained model')
     parser.add_argument('--epoch_num', type=int, default=3, help='Epoch number to load pretrained model')
