@@ -112,7 +112,7 @@ def tokenize_enumerated_smiles(args):
         if mol:
             valid_smiles.append(smiles[i])
             cnt += 1
-        if cnt == 12000000:
+        if cnt == 10000000:
             break
 
     print('Valid smiles length: ', len(valid_smiles))
