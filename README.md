@@ -7,6 +7,7 @@ Pytorch Implementation of SimSon (Simple Contrastive Learning of SMILES for Mole
 You can download datasets and model weights from the following link: https://drive.google.com/drive/folders/11vVMQrNog23Xjtb53CTAJ0loQXdmPwEv?usp=drive_link  
 All datasets, except for the pretrained dataset consisting of 1M PubChem entries, are available on Google Drive.
 You can download the 1M PubChem dataset directly from https://pubchem.ncbi.nlm.nih.gov
+For QM7 dataset, you should download QM7 from MoleculeNet (https://moleculenet.org/datasets-1) and convert mat file to csv format.
 <pre><code>
 SimSon
 ├──data
