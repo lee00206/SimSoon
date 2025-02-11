@@ -32,21 +32,13 @@ def tokenize_all(args):
         tokenize_enumerated_smiles(args)
 
     # tokenize downstream datasets
-    datasets = ['tox21', 'bbbp', 'clintox', 'hiv', 'bace', 'sider', 'esol', 'freesolv', 'lipophilicity']
+    datasets = ['tox21', 'bbbp', 'clintox', 'hiv', 'bace', 'sider', 'esol', 'freesolv', 'lipophilicity', 'bace', 'sider', 'qm8', 'qm7']
     for data in datasets:
         path = 'data/prediction/' + data + '.pth'
         if os.path.exists(path):
             pass
-        elif data == 'hiv' or data == 'bace':
-            tokenize_smiles_labels(args, data, split='scaffold')
-        elif data == 'tox21':
-            tokenize_smiles_labels(args, data, split='random', num_classes=12)
-        elif data == 'sider':
-            tokenize_smiles_labels(args, data, split='random', num_classes=27)
-        elif data == 'clintox':
-            tokenize_smiles_labels(args, data, split='random', num_classes=2)
-        else:  # esol, freesolv, lipophilicity, bbbp
-            tokenize_smiles_labels(args, data, split='random')
+        else:
+            tokenize_smiles_labels(args, data, split=args.split, num_classes=args.num_classes)
 
 
 def main(args):
