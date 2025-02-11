@@ -35,6 +35,21 @@ def load_smiles(data):
     elif data == 'smiles10m':
         df = pd.read_csv('old/data/smiles_10m.csv')
         smiles = df.smiles
+    elif data == 'bace':
+        df = pd.read_csv('https://deepchemdata.s3-us-west-1.amazonaws.com/datasets/bace.csv')
+        smiles = df.mol
+    elif data == 'tox21':
+        df = pd.read_csv('https://deepchemdata.s3-us-west-1.amazonaws.com/datasets/tox21.csv.gz', compression='gzip')
+        df = df.dropna(axis=0, how='any').reset_index(drop=True)  # drop nan values
+        smiles = df.smiles
+    elif data == 'qm8':
+        df = pd.read_csv('https://deepchemdata.s3-us-west-1.amazonaws.com/datasets/qm8.csv')
+        df = df.dropna(axis=0, how='any').reset_index(drop=True)  # drop nan values
+        smiles = df.smiles
+    elif data == 'qm7':
+        df = pd.read_csv('data/prediction/qm7.csv')
+        df = df.dropna(axis=0, how='any').reset_index(drop=True)  # drop nan values
+        smiles = df.smiles
 
     return smiles
 
@@ -64,23 +79,28 @@ def load_lists_from_url(data):
     elif data == 'freesolv':
         df = pd.read_csv('https://deepchemdata.s3-us-west-1.amazonaws.com/datasets/SAMPL.csv')
         smiles = df.smiles
-        # labels = df.drop(['iupac', 'smiles'], axis=1)   # 2 cols
         labels = df.calc
     elif data == 'lipophilicity':
         df = pd.read_csv('https://deepchemdata.s3-us-west-1.amazonaws.com/datasets/Lipophilicity.csv')
         smiles, labels = df.smiles, df['exp']
-    elif data == 'bace':
-        df = pd.read_csv('https://deepchemdata.s3-us-west-1.amazonaws.com/datasets/bace.csv')
-        smiles, labels = df.mol, df.Class
     elif data == 'tox21':
         df = pd.read_csv('https://deepchemdata.s3-us-west-1.amazonaws.com/datasets/tox21.csv.gz', compression='gzip')
         df = df.dropna(axis=0, how='any').reset_index(drop=True)   # drop nan values
         smiles = df.smiles
         labels = df.drop(['mol_id', 'smiles'], axis=1)  # 12 cols
-    elif data == 'sample':
-        df = pd.read_csv('old/data/pubchem_sample.csv')
-        smiles = df.isosmiles
-        labels = pd.DataFrame({'index':df.index, 'mw':df.mw})
+    elif data == 'bace':
+        df = pd.read_csv('https://deepchemdata.s3-us-west-1.amazonaws.com/datasets/bace.csv')
+        smiles, labels = df.mol, df.Class
+    elif data == 'tox21':
+        df = pd.read_csv('https://deepchemdata.s3-us-west-1.amazonaws.com/datasets/tox21.csv.gz', compression='gzip')
+        df = df.dropna(axis=0, how='any').reset_index(drop=True)  # drop nan values
+        smiles = df.smiles
+        labels = df.drop(['mol_id', 'smiles'], axis=1)  # 12 cols
+    elif data == 'qm8':
+        df = pd.read_csv('https://deepchemdata.s3-us-west-1.amazonaws.com/datasets/qm8.csv')
+        df = df.dropna(axis=0, how='any').reset_index(drop=True)  # drop nan values
+        smiles = df.smiles
+        labels = df.drop(['smiles', 'E2-PBE0.1', 'E1-PBE0.1', 'f1-PBE0.1', 'f2-PBE0.1'], axis=1)  # 12 tasks
 
     return smiles, labels
 
@@ -169,44 +189,7 @@ def tokenize_enumerated_smiles(args):
     path = 'data/embedding/' + str(args.data) + '.pth'
     torch.save([tokenized, tokenized2], path)   # shape = [[dataset_len, max_len], [dataset_len, max_len]]
     print('Save the smiles-enumerated smiles tensors!')
-
-
-def downstream_enumeration(args):
-    # load data
-    smiles, _ = load_lists_from_url(args.data)
-
-    # smiles enumerator
-    sme = SmilesEnumerator()
-
-    # check validity and enumerate
-    valid_smiles, enumerated_smiles = [], []
-    for sms in smiles:
-        if Chem.MolFromSmiles(sms):
-            valid_smiles.append(sms)
-            enumerated_smiles.append(sme.randomize_smiles(sms))
-
-    # load tokenizer
-    tokenizer_path = 'old/data/tokenizer/pubchem_part_tokenizer.json'
-    tokenizer = Tokenizer.from_file(tokenizer_path)
-
-    # tokenize
-    tokenized, tokenized_enumerated = [], []
-    for i in range(len(valid_smiles)):
-        output = tokenizer.encode(valid_smiles[i])
-        output_enumerated = tokenizer.encode(enumerated_smiles[i])
-
-        tokenized.append(output.ids)
-        output_enumerated.append(output_enumerated.ids)
-
-    # change to tensor
-    tokenized = torch.LongTensor(tokenized)
-    tokenized_enumerated = torch.LongTensor(tokenized_enumerated)
-
-    # save
-    path = 'data/features/' + str(args.data) + '.pth'
-    torch.save([tokenized, tokenized_enumerated], path)
-    print('Saved!')
-
+    
 
 def tokenize_smiles_labels(args, data, split, num_classes=1):
     """
